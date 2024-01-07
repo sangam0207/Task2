@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
@@ -6,25 +7,36 @@ import './search.css';
 
 const SearchForm = () => {
   const [id, setId] = useState('');
+  const [name, setName] = useState('');
   const [user, setUser] = useState(null);
 
   const handleInputChange = (event) => {
-    const value = event.target.value;
-    if (value === '' || (Number(value) >= 1 && Number(value) <= 10)) {
-      setId(value);
+    const { name, value } = event.target;
+    if (name === 'idInput') {
+      if (value === '' || (Number(value) >= 1 && Number(value) <= 10)) {
+        setId(value);
+      }
+    } else if (name === 'nameInput') {
+      setName(value);
     }
   };
 
   const handleSearch = async (e) => {
     e.preventDefault();
     try {
-      const response = await axios.post('http://localhost:3000/fetchSearchData', { idInput: id });
-      setUser(response.data);
-     
+      const response = await axios.post('http://localhost:3000/fetchSearchData', {
+        idInput: id,
+        nameInput: name,
+      });
+  
+      console.log(response.data);
+  
+      setUser(Array.isArray(response.data) ? response.data[0] : response.data);
     } catch (error) {
       console.error('Error fetching data:', error);
     }
     setId('');
+    setName('');
   };
 
   return (
@@ -32,6 +44,8 @@ const SearchForm = () => {
       <Link to="/allData" className="link-to-all-data">
         Whole User
       </Link>
+
+      <h2>You can search user by id or name </h2>
       <label htmlFor="idInput" className="search-label">
         Enter ID (1 to 10):
       </label>
@@ -46,6 +60,19 @@ const SearchForm = () => {
         max="10"
         required
       />
+      <h2>OR</h2>
+      <label htmlFor="nameInput" className="search-label">
+        Enter Name:
+      </label>
+      <input
+        type="text"
+        id="nameInput"
+        name="nameInput"
+        value={name}
+        onChange={handleInputChange}
+        className="search-input"
+      />
+
       <button type="button" onClick={handleSearch} className="search-button">
         Search
       </button>
@@ -55,6 +82,7 @@ const SearchForm = () => {
           <hr />
           <table className="user-table">
             <tbody>
+              
               <tr>
                 <th>ID</th>
                 <td>{user.id}</td>
@@ -69,7 +97,8 @@ const SearchForm = () => {
               </tr>
               <tr>
                 <th>Address</th>
-                <td>{user.address.street}, {user.address.city}</td>
+                <td>{user.address && user.address.street}, {user.address && user.address.city}</td>
+
               </tr>
               <tr>
                 <th>Company</th>
