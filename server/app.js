@@ -46,6 +46,25 @@ app.post("/fetchSearchData", async (req, res) => {
   }
 });
 
+app.get('/getDataByQuery', async (req, res) => {
+  try {
+    const { search } = req.query;
+    const apiUrl = 'https://jsonplaceholder.typicode.com/users';
+
+    
+    const response = await axios.get(apiUrl);
+    const users = response.data;
+
+    
+    const filteredUsers = search
+      ? users.filter((user) => user.name.toLowerCase().includes(search.toLowerCase()))
+      : users;
+
+    res.json(filteredUsers);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
 
 app.post("/filterByName", async (req, res) => {
   const { fullName } = req.body;
