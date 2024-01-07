@@ -2,6 +2,7 @@ const express = require("express");
 const axios = require("axios");
 const cors = require("cors");
 
+
 const app = express();
 const port = process.env.PORT || 3000;
 
@@ -41,6 +42,23 @@ app.post("/fetchSearchData", async (req, res) => {
     res.json(response.data);
   } catch (error) {
     console.error("Error fetching data:", error);
+    res.status(500).json({ error: "Internal Server Error" });
+  }
+});
+
+
+app.post("/filterByName", async (req, res) => {
+  const { fullName } = req.body;
+
+  try {
+    const response = await axios.get("https://jsonplaceholder.typicode.com/users");
+    const filteredData = response.data.filter((user) =>
+      user.name.toLowerCase().includes(fullName.toLowerCase())
+    );
+
+    res.json(filteredData);
+  } catch (error) {
+    console.error("Error filtering data by name:", error);
     res.status(500).json({ error: "Internal Server Error" });
   }
 });
